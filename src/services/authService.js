@@ -4,7 +4,7 @@ import User from '../models/userModel.js';
 import config from '../config/index.js';
 
 const register = async (data) => {
-    const { nama, email, password } = data;
+    const { /*nama */ email, password } = data;
 
     // 1. Cek apakah email sudah terdaftar di database
     const existingUser = await User.findOne({ email });
@@ -19,7 +19,6 @@ const register = async (data) => {
 
     // 3. Simpan user baru ke database MongoDB
     const newUser = new User({
-        nama,
         email,
         password: hashedPassword
     });
@@ -57,7 +56,7 @@ const login = async (data) => {
         token: token, 
         user: { 
             id: user._id, 
-            nama: user.nama, 
+            // nama: user.nama, 
             email: user.email 
         } 
     };
