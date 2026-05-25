@@ -5,10 +5,10 @@ const register = async (req, res, next) => {
     try {
         const result = await authService.register(req.body)
 
-        logger.info(`[authController] - Permintaan berhasil: ${result.message}`)
+        console.info(`[authController] - Permintaan berhasil: ${result.message}`)
         res.status(201).json(result)
     } catch (err) {
-        logger.error(`[authController] - Permintaan untuk mendaftar gagal: ${err.track}`)
+        console.error(`[authController] - Permintaan untuk mendaftar gagal: ${err.track}`)
         next(err)
     }
 }
