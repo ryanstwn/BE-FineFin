@@ -1,5 +1,5 @@
 import authService from "../services/authService.js"
-import logger from "../utils/logger.js"
+//import logger from "../utils/logger.js"
 
 const register = async (req, res, next) => {
     try {
