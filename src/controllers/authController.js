@@ -17,10 +17,10 @@ const login = async (req, res, next) => {
     try {
         const result = await authService.login(req.body)
 
-        logger.info(`[authController] - Permintaan berhasil: ${result.message}`)
+        console.info(`[authController] - Permintaan berhasil: ${result.message}`)
         return res.status(200).json(result)
     } catch (err) {
-        logger.error(`[authController] - Permintaan untuk login gagal: ${err.track}`)
+        console.error(`[authController] - Permintaan untuk login gagal: ${err.track}`)
         next(err)
     }
 }
