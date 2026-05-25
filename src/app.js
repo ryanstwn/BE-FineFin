@@ -2,7 +2,7 @@ import express from "express"
 import morgan from "morgan"
 import helmet from "helmet"
 import cors from "cors"
-import mainRoute from "./routes/mainRoute.js"
+import mainRoute from "./routes/index.js"
 import errorMiddleware from "./middlewares/errorMiddleware.js"
 
 const createApp = () => {

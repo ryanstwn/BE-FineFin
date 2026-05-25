@@ -3,7 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import createApp from "./app"
+import createApp from "./app.js"
 import config from './config/index.js';
 
 const app = createApp()
