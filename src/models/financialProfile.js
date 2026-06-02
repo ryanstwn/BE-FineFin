@@ -15,7 +15,12 @@ const financialProfileSchema = new mongoose.Schema({
     cicilanNama: { type: String },
     cicilanNominal: { type: Number },
     targetTabungan: { type: Number },
-    impian: { type: String }
+    impian: { type: String },
+
+    //ProfileRisk
+    riskScore: {type: Number, required: true },
+    riskCategory: {type:String, required: true }
+    
 }, { timestamps: true });
 
 const FinancialProfile = mongoose.model('FinancialProfile', financialProfileSchema);

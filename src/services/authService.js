@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import config from '../config/index.js';
+import authRepository from '../repositories/authRepository.js';
 
 const register = async (data) => {
     const { /*nama */ email, password } = data;
@@ -18,13 +19,8 @@ const register = async (data) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // 3. Simpan user baru ke database MongoDB
-    const newUser = new User({
-        email,
-        password: hashedPassword
-    });
-    await newUser.save();
-
-    return { message: "Registrasi berhasil!", userId: newUser._id };
+    const result = await authRepository.registrasi(email, hashedPassword)
+    return { message: "Registrasi berhasil!", userId: result.newUser._id };
 };
 
 const login = async (data) => {
@@ -49,6 +45,8 @@ const login = async (data) => {
         config.jwtSecret || 'rahasia_aman_finefin', // Kunci rahasia
         { expiresIn: config.jwtExpiredIn || '1d' } // Masa berlaku token (1 hari)
     );
+
+    
 
     // 4. Kembalikan token ke Frontend
     return { 
