@@ -1,32 +1,12 @@
+// src/repositories/onboardingRepository.js
 import FinancialProfile from "../models/financialProfile.js";
 
-// 5. Simpan ke MongoDB Atlas menggunakan skema baru
-const createOnboarding = async ({ 
-            userId,
-            finalPemasukan, 
-            tanggalGajian, 
-            tagihanNama, 
-            finalTagihanNominal, 
-            cicilanNama, 
-            finalCicilanNominal, 
-            finalTargetTabungan, 
-            impian 
-        }) =>{
-    const newProfile = new FinancialProfile({ // Sekarang sudah sinkron dengan baris nomor 2
-        userId: userId,
-        pemasukan: finalPemasukan,
-        tanggalGajian: date(tanggalGajian),
-        tagihanNama: tagihanNama,
-        tagihanNominal: finalTagihanNominal,
-        cicilanNama: cicilanNama,
-        cicilanNominal: finalCicilanNominal,
-        targetTabungan: finalTargetTabungan,
-        impian: impian
-    });
-
+const createOnboarding = async (onboardingData) => {
+    // onboardingData ini berisi semua data dari service (termasuk riskScore & riskCategory)
+    const newProfile = new FinancialProfile(onboardingData);
     return await newProfile.save();
-}
+};
 
 export default {
     createOnboarding
-}
+};

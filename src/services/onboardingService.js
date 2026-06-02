@@ -1,48 +1,43 @@
+// src/services/onboardingService.js
 import onboardingRepository from "../repositories/onboardingRepository.js";
 
-// 3. CORE LOGIC: Fungsi pembersih string "Rp5.000.000" menjadi angka murni 5000000
-const onBoarding = async (userId,{ 
-            pemasukan, 
-            tanggalGajian, 
-            tagihanNama, 
-            tagihanNominal, 
-            cicilanNama, 
-            cicilanNominal, 
-            targetTabungan, 
-            impian 
-        }
-    ) => {
+const onBoarding = async (userId, data) => {
+    const { impian, financialProfile, riskProfile } = data;
+
+    // 1. LOGIKA SKORING RISIKO
+    const riskScore = riskProfile.reduce((total, angka) => total + angka, 0);
+    let riskCategory = "Konservatif";
     
-    const cleanNumber = (val) => {
-        if (!val) return 0;
-        const cleaned = val.toString().replace(/[^0-9]/g, ''); // Hapus semua karakter non-angka
-        return cleaned ? Number(cleaned) : 0;
-    };
-
-    const finalPemasukan = cleanNumber(pemasukan);
-    const finalTagihanNominal = cleanNumber(tagihanNominal);
-    const finalCicilanNominal = cleanNumber(cicilanNominal);
-    const finalTargetTabungan = cleanNumber(targetTabungan);
-
-    // 4. Validasi Input Dasar
-    if (finalPemasukan <= 0) {
-        return res.status(400).json({ success: false, message: "Pemasukan bulanan harus diisi angka valid!" });
-    }
-    if (!tanggalGajian) {
-        return res.status(400).json({ success: false, message: "Tanggal gajian harus dipilih!" });
+    if (riskScore >= 9 && riskScore <= 12) {
+        riskCategory = "Moderat";
+    } else if (riskScore >= 13) {
+        riskCategory = "Agresif";
     }
 
-    return await onboardingRepository.createOnboarding({ 
-            userId,
-            finalPemasukan, 
-            tanggalGajian, 
-            tagihanNama, 
-            finalTagihanNominal, 
-            cicilanNama, 
-            finalCicilanNominal, 
-            finalTargetTabungan, 
-            impian 
-        })
-}
+    // 2. VALIDASI LOGIKAL
+    if (!financialProfile.pemasukan || Number(financialProfile.pemasukan) <= 0) {
+        throw new Error("Pemasukan bulanan harus diisi angka valid!");
+    }
+    if (!financialProfile.tanggalGajian) {
+        throw new Error("Tanggal gajian harus dipilih!");
+    }
 
-export default {onBoarding}
+    // 3. MAPPING & KIRIM KE REPOSITORY (Data diubah ke angka murni dengan Number())
+    const newProfile = await onboardingRepository.createOnboarding({ 
+        userId,
+        pemasukan: Number(financialProfile.pemasukan),
+        tanggalGajian: financialProfile.tanggalGajian,
+        tagihanNama: financialProfile.tagihan?.nama || "",
+        tagihanNominal: Number(financialProfile.tagihan?.nominal || 0),
+        cicilanNama: financialProfile.cicilan?.nama || "",
+        cicilanNominal: Number(financialProfile.cicilan?.nominal || 0),
+        targetTabungan: Number(financialProfile.targetTabungan || 0),
+        impian: impian,
+        riskScore: riskScore,
+        riskCategory: riskCategory
+    });
+
+    return { newProfile, riskCategory };
+};
+
+export default { onBoarding };
