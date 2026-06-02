@@ -7,6 +7,6 @@ import financialRoute from './financialRoute.js'
 const mainRoute = Router()
 mainRoute.use('/auth', authRouter)
 
-mainRoute.use('/financial', financialRoute)
+mainRoute.use('/onboarding', financialRoute)
 
 export default mainRoute
