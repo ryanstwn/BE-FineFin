@@ -6,6 +6,6 @@ import { protect } from '../middlewares/authMiddleware.js'; // Sesuaikan nama fi
 const router = express.Router();
 
 // Mengunci endpoint agar hanya user login yang bisa isi
-// router.post('/onboarding', protect, createOnboarding);
+router.post('/', protect, createOnboarding);
 
 export default router; // Pakai export default
