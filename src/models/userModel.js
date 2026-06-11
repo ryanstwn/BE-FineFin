@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
     password: { 
         type: String, 
         required: true 
+    },
+    isOnboarded: {
+        type: Boolean,
+        default: false
     }
 }, {
     // timestamps otomatis membuat field 'createdAt' dan 'updatedAt'

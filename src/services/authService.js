@@ -51,7 +51,8 @@ const login = async (data) => {
     // 4. Kembalikan token ke Frontend
     return { 
         message: "Login berhasil!", 
-        token: token, 
+        token: token,
+        isOnboarded: user.isOnboarded, 
         user: { 
             id: user._id, 
             // nama: user.nama, 

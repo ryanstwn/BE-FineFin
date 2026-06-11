@@ -1,7 +1,7 @@
 // src/models/financialProfile.js
 import mongoose from 'mongoose'; // Ganti dari require ke import
 
-const financialProfileSchema = new mongoose.Schema({
+const onboardingSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -25,4 +25,4 @@ const financialProfileSchema = new mongoose.Schema({
 
 const FinancialProfile = mongoose.model('FinancialProfile', financialProfileSchema);
 
-export default FinancialProfile; // Ganti dari module.exports ke export default
+export default mongoose.model('Onboarding', onboardingSchema); // Ganti dari module.exports ke export default
