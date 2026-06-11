@@ -1,3 +1,4 @@
+import User from '../models/userModel.js';
 const registrasi = async (username, email, hashedPassword)=> {
     const newUser = new User({
         username: username,
