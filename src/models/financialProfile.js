@@ -23,6 +23,6 @@ const onboardingSchema = new mongoose.Schema({
     
 }, { timestamps: true });
 
-const FinancialProfile = mongoose.model('FinancialProfile', financialProfileSchema);
+const FinancialProfile = mongoose.model('FinancialProfile', onboardingSchema);
 
 export default mongoose.model('Onboarding', onboardingSchema); // Ganti dari module.exports ke export default
