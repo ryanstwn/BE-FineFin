@@ -5,7 +5,7 @@ import config from '../config/index.js';
 import authRepository from '../repositories/authRepository.js';
 
 const register = async (data) => {
-    const { /*nama */ email, password } = data;
+    const { username, email, password } = data;
 
     // 1. Cek apakah email sudah terdaftar di database
     const existingUser = await User.findOne({ email });
@@ -19,7 +19,7 @@ const register = async (data) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // 3. Simpan user baru ke database MongoDB
-    const result = await authRepository.registrasi(email, hashedPassword)
+    const result = await authRepository.registrasi(username, email, hashedPassword)
     return { message: "Registrasi berhasil!", userId: result.newUser._id };
 };
 
@@ -55,7 +55,7 @@ const login = async (data) => {
         isOnboarded: user.isOnboarded, 
         user: { 
             id: user._id, 
-            // nama: user.nama, 
+            username: user.username, 
             email: user.email 
         } 
     };
