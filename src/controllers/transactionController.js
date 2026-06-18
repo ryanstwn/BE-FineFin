@@ -7,15 +7,15 @@ export const createTransaction = async (req, res) => {
         const userId = req.user.id;
 
         // 2. Tangkap inputan dari pop-up modal Frontend
-        const { type, category, nominal, date, note } = req.body;
+        const { namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal } = req.body;
 
         // 3. Oper ke Service Layer untuk divalidasi dan diolah
         const newTransaction = await transactionService.addTransaction(userId, {
-            type,
-            category,
-            nominal,
-            date,
-            note
+            namaPengeluaran, 
+            totalPengeluaran, 
+            kategori, 
+            metodePembayaran, 
+            tanggal
         });
 
         // 4. Berikan respon sukses
