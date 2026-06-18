@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-    // nama: { 
-    //     type: String, 
-    //     required: true 
-    // },
+    username: { 
+        type: String, 
+        required: true 
+    },
     email: { 
         type: String, 
         required: true, 
@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
     password: { 
         type: String, 
         required: true 
+    },
+    isOnboarded: {
+        type: Boolean,
+        default: false
     }
 }, {
     // timestamps otomatis membuat field 'createdAt' dan 'updatedAt'

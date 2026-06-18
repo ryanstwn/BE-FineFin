@@ -8,7 +8,7 @@ const register = async (req, res, next) => {
         console.info(`[authController] - Permintaan berhasil: ${result.message}`)
         res.status(201).json(result)
     } catch (err) {
-        console.error(`[authController] - Permintaan untuk mendaftar gagal: ${err.track}`)
+        console.error(`[authController] - Permintaan untuk mendaftar gagal: ${err.message}`)
         next(err)
     }
 }
@@ -20,7 +20,7 @@ const login = async (req, res, next) => {
         console.info(`[authController] - Permintaan berhasil: ${result.message}`)
         return res.status(200).json(result)
     } catch (err) {
-        console.error(`[authController] - Permintaan untuk login gagal: ${err.track}`)
+        console.error(`[authController] - Permintaan untuk login gagal: ${err.message}`)
         next(err)
     }
 }

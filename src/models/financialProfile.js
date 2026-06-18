@@ -25,4 +25,4 @@ const financialProfileSchema = new mongoose.Schema({
 
 const FinancialProfile = mongoose.model('FinancialProfile', financialProfileSchema);
 
-export default FinancialProfile; // Ganti dari module.exports ke export default
+export default mongoose.model('financialprofile', financialProfileSchema); // Ganti dari module.exports ke export default

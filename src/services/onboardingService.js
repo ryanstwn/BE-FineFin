@@ -1,6 +1,8 @@
 // src/services/onboardingService.js
 import onboardingRepository from "../repositories/onboardingRepository.js";
+import User from '../models/userModel.js';
 
+//skoring ke onboarding
 const onBoarding = async (userId, data) => {
     const { impian, financialProfile, riskProfile } = data;
 
@@ -36,6 +38,9 @@ const onBoarding = async (userId, data) => {
         riskScore: riskScore,
         riskCategory: riskCategory
     });
+
+    //update status isOnboarded di tabel user
+    await User.findByIdAndUpdate(userId, {isOnboarded: true});
 
     return { newProfile, riskCategory };
 };

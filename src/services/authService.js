@@ -3,9 +3,33 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import config from '../config/index.js';
 import authRepository from '../repositories/authRepository.js';
+import { now } from 'mongoose';
 
+// fungsi validasi 
+const validateEmailDomain = async (email) => {
+    // cek fotmat dasar pakai Regex
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email))
+        return false;
+    // ambil nama domain
+    const domain = email.split('@')[1];
+    // cek mx record ke dns server
+    try {
+        const records = await dns.resolveMx(domain);
+        //jika record ada isinya
+        return records && records.length > 0;
+    } catch (error) {
+        //jika tidak
+        return false;
+    }
+}
 const register = async (data) => {
-    const { /*nama */ email, password } = data;
+    const { username, email, password } = data;
+    // validasi
+    const isEmailValid = await validateEmailDomain(email);
+    if (isEmailValid) {
+        throw new Error("Gagal: Format Email Salah atau domain tdk terdaftar");
+    }
 
     // 1. Cek apakah email sudah terdaftar di database
     const existingUser = await User.findOne({ email });
@@ -19,8 +43,8 @@ const register = async (data) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // 3. Simpan user baru ke database MongoDB
-    const result = await authRepository.registrasi(email, hashedPassword)
-    return { message: "Registrasi berhasil!", userId: result.newUser._id };
+    const result = await authRepository.registrasi(username, email, hashedPassword)
+    return { message: "Registrasi berhasil!", userId: result._id };
 };
 
 const login = async (data) => {
@@ -51,10 +75,11 @@ const login = async (data) => {
     // 4. Kembalikan token ke Frontend
     return { 
         message: "Login berhasil!", 
-        token: token, 
+        token: token,
+        isOnboarded: user.isOnboarded, 
         user: { 
             id: user._id, 
-            // nama: user.nama, 
+            username: user.username, 
             email: user.email 
         } 
     };
