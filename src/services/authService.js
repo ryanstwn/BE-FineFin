@@ -28,13 +28,13 @@ const register = async (data) => {
     // validasi
     const isEmailValid = await validateEmailDomain(email);
     if (!isEmailValid) {
-        throw new Error("Gagal: Format Email Salah atau domain tdk terdaftar");
+        return res.status(400).json({ message: "Gagal: Format Email Salah atau domain tdk terdaftar" });
     }
 
     // 1. Cek apakah email sudah terdaftar di database
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        throw new Error("Gagal: Email sudah terdaftar!"); 
+        return res.status(400).json({ message: "Gagal: Email sudah terdaftar!" }); 
         // Error ini nanti otomatis ditangkap oleh errorMiddleware kalian
     }
 
@@ -53,13 +53,13 @@ const login = async (data) => {
     // 1. Cari user berdasarkan email
     const user = await User.findOne({ email });
     if (!user) {
-        throw new Error("Gagal: Email atau kata sandi salah!");
+        return res.status(400).json({ message: "Gagal: Email atau kata sandi salah!" });
     }
 
     // 2. Bandingkan password yang diketik dengan yang ada di database
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        throw new Error("Gagal: Email atau kata sandi salah!");
+        return res.status(400).json({ message: "Gagal: Email atau kata sandi salah!" });
     }
 
     // 3. Jika cocok, buatkan token JWT
