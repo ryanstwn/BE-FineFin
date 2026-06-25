@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import config from '../config/index.js';
 import authRepository from '../repositories/authRepository.js';
-import { now } from 'mongoose';
+import dns from 'dns/promises';
 
 // fungsi validasi 
 const validateEmailDomain = async (email) => {
@@ -27,7 +27,7 @@ const register = async (data) => {
     const { username, email, password } = data;
     // validasi
     const isEmailValid = await validateEmailDomain(email);
-    if (isEmailValid) {
+    if (!isEmailValid) {
         throw new Error("Gagal: Format Email Salah atau domain tdk terdaftar");
     }
 
