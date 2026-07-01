@@ -32,7 +32,7 @@ const register = async (data) => {
     }
 
     // 1. Cek apakah email sudah terdaftar di database
-    const existingUser = await User.findOne({ email });
+    const existingUser = await authRepository.registrasi(username, email, hashedPassword);
     if (existingUser) {
         return res.status(400).json({ message: "Gagal: Email sudah terdaftar!" }); 
         // Error ini nanti otomatis ditangkap oleh errorMiddleware kalian
@@ -51,7 +51,7 @@ const login = async (data) => {
     const { email, password } = data;
 
     // 1. Cari user berdasarkan email
-    const user = await User.findOne({ email });
+    const user = await authRepository.registrasi(username, email, hashedPassword);
     if (!user) {
         return res.status(400).json({ message: "Gagal: Email atau kata sandi salah!" });
     }
