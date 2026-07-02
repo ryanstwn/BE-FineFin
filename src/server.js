@@ -1,34 +1,17 @@
-// 1. Import semua package menggunakan gaya TypeScript (ES Modules)
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import * as dotenv from 'dotenv';
-import createApp from "./app.js"
-import config from './config/index.js';
+import mongoose from "mongoose";
+import createApp from "./app.js";
+import config from "./config/index.js";
 
-const app = createApp()
+const app = createApp();
 
-// 4. Koneksi ke MongoDB
-const mongoUri = config.mongoDbUrl || 'mongodb://localhost:27017/keuangan_db';
-// Di atas adalah fallback ke database lokal jika .env belum disetting, agar server tidak langsung mati.
+mongoose.connect(config.mongoDbUrl)
+  .then(() => console.log("Koneksi ke MongoDB Berhasil!"))
+  .catch(err => console.error(err));
 
-mongoose.connect(mongoUri)
-  .then(() => {
-    console.log('Koneksi ke MongoDB Berhasil!');
-  })
-  .catch((err) => {
-    if (err instanceof Error) {
-      console.error('Gagal konek ke MongoDB:', err.message);
-    }
-  });
-
-// 5. Membuat Route Dasar
-app.get('/', (req, res) => {
-  res.send('Server Backend Keuangan Aktif dan Berjalan!');
+app.get("/", (req, res) => {
+  res.send("Server Backend Keuangan Aktif dan Berjalan!");
 });
 
-// 6. Menjalankan Server
-const PORT = config.port || 5000;
-app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
+app.listen(config.port || 5000, () => {
+  console.log(`Server berjalan di http://localhost:${config.port || 5000}`);
 });

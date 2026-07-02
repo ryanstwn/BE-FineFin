@@ -1,7 +1,12 @@
 import express from 'express';
-import { createTransaction } from '../controllers/transactionController.js';
+// 👇 UPDATE: Jangan lupa import getTransactions
+import { createTransaction, getTransactions } from '../controllers/transactionController.js'; 
 import { protect } from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
 
-router.post('/', protect, createTransaction); // Pintu masuk POST /api/transaction
+router.post('/', protect, createTransaction); 
+// 👇 TAMBAHAN BARU: Pintu masuk untuk GET /api/transaction
+router.get('/', protect, getTransactions); 
+
 export default router;

@@ -1,35 +1,40 @@
 import transactionRepository from "../repositories/transactionRepository.js";
 
 const addTransaction = async (userId, data) => {
-    const { namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal } = data;
+  const { namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal } = data;
 
-    // 1. Validasi Inputan Wajib
-    if (!namaPengeluaran || !totalPengeluaran || !kategori || !metodePembayaran || !tanggal) {
-        return res.status(400).json({ message: "Validasi Gagal: namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal wajib diisi!" });
-    }
+  if (!namaPengeluaran || !totalPengeluaran || !kategori || !metodePembayaran || !tanggal) {
+    throw new Error("Validasi Gagal: Semua kolom wajib diisi!");
+  }
 
-    // 2. Validasi Core Logic BE2: Harus Angka Murni
-    const parsedNominal = Number(totalPengeluaran);
-    if (isNaN(parsedNominal)) {
-        return res.status(400).json({ message: "Validasi Gagal: Total pengeluaran harus berupa angka valid!" })
-    }
+  const parsedNominal = Number(totalPengeluaran);
+  if (isNaN(parsedNominal)) {
+    throw new Error("Validasi Gagal: Total pengeluaran harus berupa angka valid!");
+  }
 
-    // 3. Validasi Core Logic BE2: Anti-Minus
-    if (parsedNominal <= 0) {
-        return res.status(400).json({ message: "Validasi Gagal: Total pengeluaran harus lebih besar dari 0!" })
-    }
-    
-    // Siapkan objek data bersih untuk dikirim ke repo
-    const transactionData = {
-        userId,
-        namaPengeluaran,
-        totalPengeluaran : parsedNominal,
-        kategori,
-        metodePembayaran,
-        tanggal
-    };
+  if (parsedNominal <= 0) {
+    throw new Error("Validasi Gagal: Total pengeluaran harus lebih besar dari 0!");
+  }
 
-    return await transactionRepository.saveTransaction(transactionData);
+  const transactionData = {
+    userId,
+    namaPengeluaran,
+    totalPengeluaran: parsedNominal,
+    kategori,
+    metodePembayaran,
+    tanggal,
+  };
+
+  return await transactionRepository.saveTransaction(transactionData);
 };
 
-export default { addTransaction };
+// 👇 TAMBAHAN BARU: Service untuk meneruskan permintaan ke repository
+const getTransactions = async (userId) => {
+    if (!userId) {
+        throw new Error("Validasi Gagal: User ID tidak ditemukan!");
+    }
+    return await transactionRepository.getTransactionsByUserId(userId);
+};
+
+// Jangan lupa tambahkan getTransactions di sini
+export default { addTransaction, getTransactions };
