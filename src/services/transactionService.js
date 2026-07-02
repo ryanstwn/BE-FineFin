@@ -5,18 +5,18 @@ const addTransaction = async (userId, data) => {
 
     // 1. Validasi Inputan Wajib
     if (!namaPengeluaran || !totalPengeluaran || !kategori || !metodePembayaran || !tanggal) {
-        throw new Error("Validasi Gagal: namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal wajib diisi!");
+        return res.status(400).json({ message: "Validasi Gagal: namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal wajib diisi!" });
     }
 
     // 2. Validasi Core Logic BE2: Harus Angka Murni
     const parsedNominal = Number(totalPengeluaran);
     if (isNaN(parsedNominal)) {
-        throw new Error("Validasi Gagal: Total pengeluaran harus berupa angka valid!");
+        return res.status(400).json({ message: "Validasi Gagal: Total pengeluaran harus berupa angka valid!" })
     }
 
     // 3. Validasi Core Logic BE2: Anti-Minus
     if (parsedNominal <= 0) {
-        throw new Error("Validasi Gagal: Total pengeluaran harus lebih besar dari 0!");
+        return res.status(400).json({ message: "Validasi Gagal: Total pengeluaran harus lebih besar dari 0!" })
     }
     
     // Siapkan objek data bersih untuk dikirim ke repo

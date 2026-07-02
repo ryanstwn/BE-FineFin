@@ -18,10 +18,10 @@ const onBoarding = async (userId, data) => {
 
     // 2. VALIDASI LOGIKAL
     if (!financialProfile.pemasukan || Number(financialProfile.pemasukan) <= 0) {
-        throw new Error("Pemasukan bulanan harus diisi angka valid!");
+        return res.status(400).json({ message: "Pemasukan bulanan harus diisi angka valid!" });
     }
     if (!financialProfile.tanggalGajian) {
-        throw new Error("Tanggal gajian harus dipilih!");
+        return res.status(400).json({ message: "Tanggal gajian harus dipilih!" });
     }
 
     // 3. MAPPING & KIRIM KE REPOSITORY (Data diubah ke angka murni dengan Number())

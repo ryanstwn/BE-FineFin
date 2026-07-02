@@ -14,7 +14,7 @@ export const protect = async (req, res, next) => {
 
             // 3. Selipkan data user id ke dalam object request (req.user)
             // BE 1 biasanya menyimpan id user di dalam token saat login dengan nama 'id' atau '_id'
-            req.user = { id: decoded.id || decoded._id };
+            req.user = { id: decoded.id };
 
             return next(); // Lanjut ke controller onboarding kamu
         } catch (error) {
