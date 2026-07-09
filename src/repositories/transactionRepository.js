@@ -5,13 +5,18 @@ const saveTransaction = async (transactionData) => {
     return await newRecord.save();
 };
 
-// 👇 TAMBAHAN BARU: Ambil semua transaksi milik user tertentu
 const getTransactionsByUserId = async (userId) => {
-    // sort({ tanggal: -1 }) artinya diurutkan dari tanggal terbaru ke terlama
     return await Transaction.find({ userId }).sort({ tanggal: -1 });
+};
+
+// 👇 TAMBAHAN BARU: Menghapus transaksi berdasarkan ID & kepemilikan User
+const deleteTransactionByIdAndUser = async (transactionId, userId) => {
+    // findOneAndDelete akan mereturn data jika berhasil dihapus, atau null jika tidak ketemu
+    return await Transaction.findOneAndDelete({ _id: transactionId, userId });
 };
 
 export default {
     saveTransaction,
-    getTransactionsByUserId // Jangan lupa diekspor
+    getTransactionsByUserId,
+    deleteTransactionByIdAndUser // 👇 Jangan lupa diekspor
 };
