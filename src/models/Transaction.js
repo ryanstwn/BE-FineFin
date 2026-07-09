@@ -13,6 +13,12 @@ const transactionSchema = new mongoose.Schema({
     trim: true
   },
 
+  tipeTransaksi: {
+    type: String,
+    enum: ['Pemasukan','Pengeluaran'],
+    required: true
+  },
+
   totalPengeluaran: {
     type: Number,
     required: true,
