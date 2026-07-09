@@ -1,25 +1,18 @@
 import Transaction from "../models/Transaction.js"; 
 
+// 1. Fungsi Save Transaksi (Sudah Aman)
 const saveTransaction = async (transactionData) => {
     const newRecord = new Transaction(transactionData);
     return await newRecord.save();
 };
 
-// 👇 UBAH FUNGSI INI: Tambahkan parameter startDate
-const getTransactionsByUserId = async (userId, startDate) => {
-    // Tarik hanya transaksi yang tanggalnya >= startDate siklus gajian
-    return await Transaction.find({ 
-        userId,
-        tanggal: { $gte: startDate } 
-    }).sort({ tanggal: -1 });
-};
-
-const deleteTransactionByIdAndUser = async (transactionId, userId) => {
-    return await Transaction.findOneAndDelete({ _id: transactionId, userId });
+// 👇 TAMBAHAN BARU: Ambil semua transaksi milik user tertentu
+const getTransactionsByUserId = async (userId) => {
+    // sort({ tanggal: -1 }) artinya diurutkan dari tanggal terbaru ke terlama
+    return await Transaction.find({ userId }).sort({ tanggal: -1 });
 };
 
 export default {
     saveTransaction,
-    getTransactionsByUserId,
-    deleteTransactionByIdAndUser 
+    getTransactionsByUserId // Jangan lupa diekspor
 };

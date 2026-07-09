@@ -19,7 +19,7 @@ const transactionSchema = new mongoose.Schema({
     required: true
   },
 
-  totalPengeluaran: {
+  nominal: {
     type: Number,
     required: true,
     min: [1, 'Nominal tidak boleh 0 atau negatif']
