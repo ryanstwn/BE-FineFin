@@ -7,7 +7,7 @@ const transactionSchema = new mongoose.Schema({
     required: true
   },
 
-  namaPengeluaran: {
+  namaTransaksi: {
     type: String,
     required: true,
     trim: true
