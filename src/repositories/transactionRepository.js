@@ -21,8 +21,19 @@ const deleteTransactionByIdAndUser = async (transactionId, userId) => {
     return await Transaction.findOneAndDelete({ _id: transactionId, userId });
 };
 
+//4. menambahkan fungsi update
+const updateTransactionByIdAndUser = async (transactionId, userId, updateData) => {
+    // findOneAndUpdate akan mencari data, mengubahnya, dan { new: true } mengembalikan data versi terbaru
+    return await Transaction.findOneAndUpdate(
+        { _id: transactionId, userId },
+        { $set: updateData },
+        { new: true, runValidators: true }
+    );
+};
+
 export default {
     saveTransaction,
     getTransactionsByUserId,
-    deleteTransactionByIdAndUser // <--- Wajib didaftarkan di export agar bisa dibaca oleh Service
+    deleteTransactionByIdAndUser,
+    updateTransactionByIdAndUser
 };

@@ -3,11 +3,12 @@ import transactionService from "../services/transactionService.js";
 export const createTransaction = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { namaPengeluaran, totalPengeluaran, kategori, metodePembayaran, tanggal } = req.body;
+    const { namaTransaksi, tipeTransaksi,nominal, kategori, metodePembayaran, tanggal } = req.body;
 
     const newTransaction = await transactionService.addTransaction(userId, {
-      namaPengeluaran,
-      totalPengeluaran,
+      namaTransaksi,
+      tipeTransaksi,
+      nominal,
       kategori,
       metodePembayaran,
       tanggal,
@@ -27,7 +28,7 @@ export const createTransaction = async (req, res) => {
   }
 };
 
-// 👇 TAMBAHAN BARU: Controller untuk GET Riwayat Transaksi
+//Controller untuk GET Riwayat Transaksi
 export const getTransactions = async (req, res) => {
     try {
         const userId = req.user.id; // Diambil dari token JWT
@@ -44,4 +45,65 @@ export const getTransactions = async (req, res) => {
         console.error("Error BE2 GET Transaction:", error.message);
         return res.status(500).json({ success: false, message: "Gagal mengambil data dari server." });
     }
+};
+
+//Controller untuk DELETE riwayat transaksi
+export const  deleteTransaction = async (req, res) => {
+  try{
+    const userId = req.user.id;
+    const transactionId = req.params.id; //diambil dr parameter URL: /api/transaction/:id
+
+    await transactionService.deleteTransaction(transactionId, userId);
+
+    return res.status(200).json({
+      success:true,
+      message:"Data transaksi berhasil dihapus!"
+    });
+  }catch (error) {
+    console.error("Error BE2 DELETE Transaction:",error.message);
+
+    //membedakan error validasi/not found dengan error server
+    if (error.message.includes("Tidak Ditemukan")||
+  error.message.includes("Validasi")){
+    return res.status(404).json({success: false, message: error.message});
+  }
+
+  return res.status(500).json({success:false, message:"Terjadi Kesalahan pada server saat menghapus data!"});
+  }
+
+  // TAMBAHKAN INI di paling bawah file controller:
+export const updateTransaction = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const transactionId = req.params.id; // Diambil dari /api/transaction/:id
+    const { namaTransaksi, tipeTransaksi, nominal, kategori, metodePembayaran, tanggal } = req.body;
+
+    // Kumpulkan data yang ingin di-update
+    const updateData = {};
+    if (namaTransaksi) updateData.namaTransaksi = namaTransaksi;
+    if (tipeTransaksi) updateData.tipeTransaksi = tipeTransaksi;
+    if (nominal) updateData.nominal = nominal;
+    if (kategori) updateData.kategori = kategori;
+    if (metodePembayaran) updateData.metodePembayaran = metodePembayaran;
+    if (tanggal) updateData.tanggal = tanggal;
+
+    const updatedTransaction = await transactionService.editTransaction(transactionId, userId, updateData);
+
+    return res.status(200).json({
+      success: true,
+      message: "Data transaksi berhasil diperbarui!",
+      data: updatedTransaction
+    });
+  } catch (error) {
+    console.error("Error BE2 UPDATE Transaction:", error.message);
+    if (error.message.includes("Ditemukan")) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+    if (error.message.includes("Validasi")) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    return res.status(500).json({ success: false, message: "Terjadi kesalahan pada server saat memperbarui data." });
+  }
+};
+
 };
