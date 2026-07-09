@@ -7,10 +7,16 @@ const transactionSchema = new mongoose.Schema({
     required: true
   },
 
-  namaPengeluaran: {
+  namaTransaksi: {
     type: String,
     required: true,
     trim: true
+  },
+
+  tipeTransaksi: {
+    type: String,
+    enum: ['Pemasukan','Pengeluaran'],
+    required: true
   },
 
   totalPengeluaran: {
