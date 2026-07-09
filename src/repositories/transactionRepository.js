@@ -1,17 +1,28 @@
 import Transaction from "../models/Transaction.js"; 
 
+// 1. Fungsi Save Transaksi (Sudah Aman)
 const saveTransaction = async (transactionData) => {
     const newRecord = new Transaction(transactionData);
     return await newRecord.save();
 };
 
-// 👇 TAMBAHAN BARU: Ambil semua transaksi milik user tertentu
-const getTransactionsByUserId = async (userId) => {
-    // sort({ tanggal: -1 }) artinya diurutkan dari tanggal terbaru ke terlama
-    return await Transaction.find({ userId }).sort({ tanggal: -1 });
+// 2. ROMBAK FUNGSI GET: Saring berdasarkan userId DAN tanggal >= startDate
+const getTransactionsByUserId = async (userId, startDate) => {
+    // Menarik data transaksi yang tanggalnya mulai dari tanggal gajian (startDate) ke atas
+    return await Transaction.find({ 
+        userId,
+        tanggal: { $gte: startDate } // $gte = Greater Than or Equal (Lebih besar atau sama dengan)
+    }).sort({ tanggal: -1 }); // Diurutkan dari tanggal terbaru ke terlama
+};
+
+// 3. TAMBAHKAN FUNGSI DELETE: Eksekusi penghapusan di database Mongoose
+const deleteTransactionByIdAndUser = async (transactionId, userId) => {
+    // Menghapus data yang ID Transaksinya cocok DAN pastinya milik si user yang sedang login
+    return await Transaction.findOneAndDelete({ _id: transactionId, userId });
 };
 
 export default {
     saveTransaction,
-    getTransactionsByUserId // Jangan lupa diekspor
+    getTransactionsByUserId,
+    deleteTransactionByIdAndUser // <--- Wajib didaftarkan di export agar bisa dibaca oleh Service
 };
