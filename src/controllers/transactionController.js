@@ -70,7 +70,7 @@ export const  deleteTransaction = async (req, res) => {
 
   return res.status(500).json({success:false, message:"Terjadi Kesalahan pada server saat menghapus data!"});
   }
-
+};
   // TAMBAHKAN INI di paling bawah file controller:
 export const updateTransaction = async (req, res) => {
   try {
@@ -104,6 +104,4 @@ export const updateTransaction = async (req, res) => {
     }
     return res.status(500).json({ success: false, message: "Terjadi kesalahan pada server saat memperbarui data." });
   }
-};
-
 };
