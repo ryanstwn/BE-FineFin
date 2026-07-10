@@ -3,10 +3,13 @@ import authRouter from './authRoute.js'
 
 //Import rute onbordingController
 import financialRoute from './financialRoute.js'
+import transactionRoute from './transactionRoute.js'
 
 const mainRoute = Router()
 mainRoute.use('/auth', authRouter)
 
 mainRoute.use('/onboarding', financialRoute)
+
+mainRoute.use('/transaction', transactionRoute)
 
 export default mainRoute
