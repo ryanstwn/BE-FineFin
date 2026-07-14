@@ -108,11 +108,7 @@ const getExpenseSummary = async (userId, startDate, endDate) => {
 // PIE CHART
 // TOTAL PENGELUARAN PER KATEGORI
 // ===============================
-const getExpenseCategorySummary = async (
-  userId,
-  startDate,
-  endDate
-) => {
+const getExpenseCategorySummary = async (userId, startDate, endDate) => {
   const match = {
     userId: new mongoose.Types.ObjectId(userId),
     tipeTransaksi: "Pengeluaran",
@@ -166,6 +162,27 @@ const deleteTransactionByIdAndUser = async (transactionId, userId) => {
   });
 };
 
+// ===============================
+// UPDATE TRANSACTION
+// ===============================
+const updateTransactionByIdAndUser = async (
+  transactionId,
+  userId,
+  updateData,
+) => {
+  return await Transaction.findOneAndUpdate(
+    {
+      _id: transactionId,
+      userId: userId,
+    },
+    updateData,
+    {
+      new: true, // mengembalikan data terbaru
+      runValidators: true, // tetap menjalankan validasi schema
+    },
+  );
+};
+
 export default {
   saveTransaction,
   getTransactionsByUserId,
@@ -173,4 +190,5 @@ export default {
   getExpenseSummary,
   getExpenseCategorySummary,
   deleteTransactionByIdAndUser,
+  updateTransactionByIdAndUser,
 };
