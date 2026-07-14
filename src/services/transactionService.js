@@ -54,32 +54,48 @@ const getTransactions = async (userId) => {
     throw new Error("Validasi Gagal: User ID tidak ditemukan!");
   }
 
-  // Tarik tanggal gajian user dari database
+  // Ambil profil user
   const profile = await FinancialProfile.findOne({ userId });
 
-  // Jika user belum isi kuesioner, default ke tanggal 1
   const payday = profile?.tanggalGajian || 1;
 
-  // Logika Penentuan Siklus (Robo-Advisor Core)
   const today = new Date();
+
   let startMonth = today.getMonth();
   let startYear = today.getFullYear();
-  const currentDay = today.getDate();
 
-  // Jika hari ini belum mencapai tanggal gajian, berarti user masih di siklus bulan lalu
-  if (currentDay < payday) {
-    startMonth -= 1;
+  // Menentukan awal siklus
+  if (today.getDate() < payday) {
+    startMonth--;
   }
 
-  // Penanganan Ujung Bulan (Edge Case)
-  const maxDaysInStartMonth = new Date(startYear, startMonth + 1, 0).getDate();
-  const actualPayday =
-    payday > maxDaysInStartMonth ? maxDaysInStartMonth : payday;
+  // Jika mundur ke Desember tahun sebelumnya
+  if (startMonth < 0) {
+    startMonth = 11;
+    startYear--;
+  }
 
-  // Buat objek tanggal yang valid
-  const startDate = new Date(startYear, startMonth, actualPayday);
+  // Tentukan tanggal awal siklus
+  const maxDaysStart = new Date(startYear, startMonth + 1, 0).getDate();
+  const actualStartPayday = payday > maxDaysStart ? maxDaysStart : payday;
 
-  // Lempar ke repository dengan membawa startDate
+  const startDate = new Date(startYear, startMonth, actualStartPayday);
+
+  // Tentukan tanggal akhir siklus
+  let endMonth = startMonth + 1;
+  let endYear = startYear;
+
+  if (endMonth > 11) {
+    endMonth = 0;
+    endYear++;
+  }
+
+  const maxDaysEnd = new Date(endYear, endMonth + 1, 0).getDate();
+
+  const actualEndPayday = payday > maxDaysEnd ? maxDaysEnd : payday;
+
+  const endDate = new Date(endYear, endMonth, actualEndPayday);
+
   return await transactionRepository.getTransactionsByUserId(
     userId,
     startDate,
@@ -176,21 +192,6 @@ const getTransactionSummary = async (userId) => {
   const actualPayday = payday > maxDays ? maxDays : payday;
 
   const startDate = new Date(startYear, startMonth, actualPayday);
-
-  let endMonth = startMonth + 1;
-  let endYear = startYear;
-
-  if (endMonth > 11) {
-    endMonth = 0;
-    endYear++;
-  }
-
-  const maxDaysInEndMonth = new Date(endYear, endMonth + 1, 0).getDate();
-
-  const actualEndPayday =
-    payday > maxDaysInEndMonth ? maxDaysInEndMonth : payday;
-
-  const endDate = new Date(endYear, endMonth, actualEndPayday);
 
   // Ambil data dari Repository (BE1)
   const additionalIncome =
