@@ -110,5 +110,62 @@ const editTransaction = async (transactionId, userId, updateData) => {
 
   return updatedRecord;
 };
+  const getTransactionSummary = async (userId) => {
+    if (!userId) {
+        throw new Error("Validasi Gagal: User ID tidak ditemukan!");
+    }
 
-export default { addTransaction, getTransactions, deleteTransaction, editTransaction };
+    // A. Ambil tanggal gajian user dari profil finansial (sama seperti logika GET kemarin)
+    const profile = await FinancialProfile.findOne({ userId });
+    const payday = profile?.tanggalGajian || 1;
+
+    const today = new Date();
+    let startMonth = today.getMonth();
+    let startYear = today.getFullYear();
+    const currentDay = today.getDate();
+
+    if (currentDay < payday) {
+        startMonth -= 1;
+    }
+
+    const maxDaysInStartMonth = new Date(startYear, startMonth + 1, 0).getDate();
+    const actualPayday = payday > maxDaysInStartMonth ? maxDaysInStartMonth : payday;
+    const startDate = new Date(startYear, startMonth, actualPayday);
+
+    // B. Tarik data agregasi dari Repository
+    const rawSummary = await transactionRepository.getTransactionSummaryByRange(userId, startDate);
+
+    // C. Olah data mentah dari MongoDB menjadi format ringkasan yang rapi
+    let totalPemasukan = 0;
+    let totalPengeluaran = 0;
+    const kategoriPengeluaran = []; // Untuk bahan Pie Chart FE
+
+    rawSummary.forEach(item => {
+        const { tipeTransaksi, kategori } = item._id;
+        const nominal = item.totalNominal;
+
+        if (tipeTransaksi === "Pemasukan") {
+            totalPemasukan += nominal;
+        } else if (tipeTransaksi === "Pengeluaran") {
+            totalPengeluaran += nominal;
+            // Masukkan ke array kategori untuk visualisasi chart
+            kategoriPengeluaran.push({
+                kategori,
+                nominal
+            });
+        }
+    });
+
+    const sisaSaldo = totalPemasukan - totalPengeluaran;
+
+    // Kirim objek hasil kalkulasi Robo-Advisor dasar ini
+    return {
+        totalPemasukan,
+        totalPengeluaran,
+        sisaSaldo,
+        kategoriPengeluaran // Array berisi [{ kategori: 'Makan', nominal: 150000 }, ...]
+    };
+};
+
+
+export default { addTransaction, getTransactions, deleteTransaction, editTransaction, getTransactionSummary };
