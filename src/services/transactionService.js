@@ -193,6 +193,20 @@ const getTransactionSummary = async (userId) => {
 
   const startDate = new Date(startYear, startMonth, actualPayday);
 
+  let endMonth = startMonth + 1;
+  let endYear = startYear;
+
+  if (endMonth > 11) {
+    endMonth = 0;
+    endYear++;
+  }
+
+  const maxDaysEnd = new Date(endYear, endMonth + 1, 0).getDate();
+
+  const actualEndPayday = payday > maxDaysEnd ? maxDaysEnd : payday;
+
+  const endDate = new Date(endYear, endMonth, actualEndPayday);
+
   // Ambil data dari Repository (BE1)
   const additionalIncome =
     await transactionRepository.getAdditionalIncomeSummary(
