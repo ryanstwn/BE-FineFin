@@ -1,12 +1,26 @@
 import transactionRepository from "../repositories/transactionRepository.js";
 // WAJIB IMPORT MODEL PROFIL FINANSIAL
-import FinancialProfile from "../models/financialProfile.js"; 
+import FinancialProfile from "../models/financialProfile.js";
 
 // 1. Fungsi Add Transaction
 const addTransaction = async (userId, data) => {
-  const { namaTransaksi, tipeTransaksi, nominal, kategori, metodePembayaran, tanggal } = data;
+  const {
+    namaTransaksi,
+    tipeTransaksi,
+    nominal,
+    kategori,
+    metodePembayaran,
+    tanggal,
+  } = data;
 
-  if (!namaTransaksi || !tipeTransaksi || !nominal || !kategori || !metodePembayaran || !tanggal) {
+  if (
+    !namaTransaksi ||
+    !tipeTransaksi ||
+    !nominal ||
+    !kategori ||
+    !metodePembayaran ||
+    !tanggal
+  ) {
     throw new Error("Validasi Gagal: Semua kolom wajib diisi!");
   }
 
@@ -16,7 +30,9 @@ const addTransaction = async (userId, data) => {
   }
 
   if (!["Pemasukan", "Pengeluaran"].includes(tipeTransaksi)) {
-    throw new Error("Validasi Gagal: Tipe transaksi harus 'Pemasukan' atau 'Pengeluaran'!");
+    throw new Error(
+      "Validasi Gagal: Tipe transaksi harus 'Pemasukan' atau 'Pengeluaran'!",
+    );
   }
 
   const transactionData = {
@@ -34,52 +50,63 @@ const addTransaction = async (userId, data) => {
 
 // 2. Fungsi GET (Fokus Siklus Berjalan Berdasarkan Tanggal Gajian)
 const getTransactions = async (userId) => {
-    if (!userId) {
-        throw new Error("Validasi Gagal: User ID tidak ditemukan!");
-    }
+  if (!userId) {
+    throw new Error("Validasi Gagal: User ID tidak ditemukan!");
+  }
 
-    // Tarik tanggal gajian user dari database
-    const profile = await FinancialProfile.findOne({ userId });
-    
-    // Jika user belum isi kuesioner, default ke tanggal 1
-    const payday = profile?.tanggalGajian || 1; 
+  // Tarik tanggal gajian user dari database
+  const profile = await FinancialProfile.findOne({ userId });
 
-    // Logika Penentuan Siklus (Robo-Advisor Core)
-    const today = new Date();
-    let startMonth = today.getMonth();
-    let startYear = today.getFullYear();
-    const currentDay = today.getDate();
+  // Jika user belum isi kuesioner, default ke tanggal 1
+  const payday = profile?.tanggalGajian || 1;
 
-    // Jika hari ini belum mencapai tanggal gajian, berarti user masih di siklus bulan lalu
-    if (currentDay < payday) {
-        startMonth -= 1;
-    }
+  // Logika Penentuan Siklus (Robo-Advisor Core)
+  const today = new Date();
+  let startMonth = today.getMonth();
+  let startYear = today.getFullYear();
+  const currentDay = today.getDate();
 
-    // Penanganan Ujung Bulan (Edge Case)
-    const maxDaysInStartMonth = new Date(startYear, startMonth + 1, 0).getDate();
-    const actualPayday = payday > maxDaysInStartMonth ? maxDaysInStartMonth : payday;
+  // Jika hari ini belum mencapai tanggal gajian, berarti user masih di siklus bulan lalu
+  if (currentDay < payday) {
+    startMonth -= 1;
+  }
 
-    // Buat objek tanggal yang valid
-    const startDate = new Date(startYear, startMonth, actualPayday);
-    
-    // Lempar ke repository dengan membawa startDate
-    return await transactionRepository.getTransactionsByUserId(userId, startDate);
+  // Penanganan Ujung Bulan (Edge Case)
+  const maxDaysInStartMonth = new Date(startYear, startMonth + 1, 0).getDate();
+  const actualPayday =
+    payday > maxDaysInStartMonth ? maxDaysInStartMonth : payday;
+
+  // Buat objek tanggal yang valid
+  const startDate = new Date(startYear, startMonth, actualPayday);
+
+  // Lempar ke repository dengan membawa startDate
+  return await transactionRepository.getTransactionsByUserId(
+    userId,
+    startDate,
+    endDate,
+  );
 };
 
-// 3. Fungsi Delete Transaction 
+// 3. Fungsi Delete Transaction
 const deleteTransaction = async (transactionId, userId) => {
   if (!transactionId) {
     throw new Error("Validasi Gagal: Parameter ID Transaksi tidak Valid!");
   }
 
-  const deletedRecord = await transactionRepository.deleteTransactionByIdAndUser(transactionId, userId);
+  const deletedRecord =
+    await transactionRepository.deleteTransactionByIdAndUser(
+      transactionId,
+      userId,
+    );
 
   // Pastikan variabelnya matching: deletedRecord
   if (!deletedRecord) {
-    throw new Error("Data Tidak Ditemukan atau anda tidak memiliki akses untuk menghapusnya!!");
+    throw new Error(
+      "Data Tidak Ditemukan atau anda tidak memiliki akses untuk menghapusnya!!",
+    );
   }
 
-  return deletedRecord; 
+  return deletedRecord;
 };
 
 // 4. fungsi Edit Transaction
@@ -98,17 +125,109 @@ const editTransaction = async (transactionId, userId, updateData) => {
   }
 
   // Validasi tipe transaksi jika diubah
-  if (updateData.tipeTransaksi && !["Pemasukan", "Pengeluaran"].includes(updateData.tipeTransaksi)) {
-    throw new Error("Validasi Gagal: Tipe transaksi harus 'Pemasukan' atau 'Pengeluaran'!");
+  if (
+    updateData.tipeTransaksi &&
+    !["Pemasukan", "Pengeluaran"].includes(updateData.tipeTransaksi)
+  ) {
+    throw new Error(
+      "Validasi Gagal: Tipe transaksi harus 'Pemasukan' atau 'Pengeluaran'!",
+    );
   }
 
-  const updatedRecord = await transactionRepository.updateTransactionByIdAndUser(transactionId, userId, updateData);
+  const updatedRecord =
+    await transactionRepository.updateTransactionByIdAndUser(
+      transactionId,
+      userId,
+      updateData,
+    );
 
   if (!updatedRecord) {
-    throw new Error("Data Tidak Ditemukan atau anda tidak memiliki akses untuk mengubahnya!!");
+    throw new Error(
+      "Data Tidak Ditemukan atau anda tidak memiliki akses untuk mengubahnya!!",
+    );
   }
 
   return updatedRecord;
 };
+const getTransactionSummary = async (userId) => {
+  if (!userId) {
+    throw new Error("Validasi Gagal: User ID tidak ditemukan!");
+  }
 
-export default { addTransaction, getTransactions, deleteTransaction, editTransaction };
+  // Ambil profil finansial user
+  const profile = await FinancialProfile.findOne({ userId });
+
+  // Gaji tetap dari onboarding
+  const salary = profile?.pemasukan || 0;
+
+  // Ambil tanggal gajian
+  const payday = profile?.tanggalGajian || 1;
+
+  // Menentukan awal siklus
+  const today = new Date();
+  let startMonth = today.getMonth();
+  let startYear = today.getFullYear();
+
+  if (today.getDate() < payday) {
+    startMonth--;
+  }
+
+  const maxDays = new Date(startYear, startMonth + 1, 0).getDate();
+  const actualPayday = payday > maxDays ? maxDays : payday;
+
+  const startDate = new Date(startYear, startMonth, actualPayday);
+
+  let endMonth = startMonth + 1;
+  let endYear = startYear;
+
+  if (endMonth > 11) {
+    endMonth = 0;
+    endYear++;
+  }
+
+  const maxDaysInEndMonth = new Date(endYear, endMonth + 1, 0).getDate();
+
+  const actualEndPayday =
+    payday > maxDaysInEndMonth ? maxDaysInEndMonth : payday;
+
+  const endDate = new Date(endYear, endMonth, actualEndPayday);
+
+  // Ambil data dari Repository (BE1)
+  const additionalIncome =
+    await transactionRepository.getAdditionalIncomeSummary(
+      userId,
+      startDate,
+      endDate,
+    );
+
+  const expense = await transactionRepository.getExpenseSummary(
+    userId,
+    startDate,
+    endDate,
+  );
+
+  const categories = await transactionRepository.getExpenseCategorySummary(
+    userId,
+    startDate,
+    endDate,
+  );
+
+  // Business Logic
+  const income = salary + additionalIncome;
+  const balance = income - expense;
+
+  return {
+    income,
+    expense,
+    balance,
+    categories,
+  };
+};
+
+export default {
+  addTransaction,
+  getTransactions,
+  deleteTransaction,
+  editTransaction,
+  getTransactionSummary,
+};

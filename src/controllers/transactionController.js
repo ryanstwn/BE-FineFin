@@ -71,7 +71,7 @@ export const  deleteTransaction = async (req, res) => {
   return res.status(500).json({success:false, message:"Terjadi Kesalahan pada server saat menghapus data!"});
   }
 };
-  // TAMBAHKAN INI di paling bawah file controller:
+
 export const updateTransaction = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -103,5 +103,26 @@ export const updateTransaction = async (req, res) => {
       return res.status(400).json({ success: false, message: error.message });
     }
     return res.status(500).json({ success: false, message: "Terjadi kesalahan pada server saat memperbarui data." });
+  }
+};
+// TAMBAHKAN INI di paling bawah:
+
+export const getSummary = async (req, res) => {
+  try {
+    const userId = req.user.id; // Diambil dari middleware protect
+
+    const summary = await transactionService.getTransactionSummary(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Data ringkasan keuangan berhasil dihitung!",
+      data: summary
+    });
+  } catch (error) {
+    console.error("Error BE2 GET Summary:", error.message);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Terjadi kesalahan saat menghitung ringkasan keuangan." 
+    });
   }
 };
