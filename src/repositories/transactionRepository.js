@@ -1,36 +1,176 @@
-import Transaction from "../models/Transaction.js"; 
+import mongoose from "mongoose";
+import Transaction from "../models/Transaction.js";
 
-// 1. Fungsi Save Transaksi
+// ===============================
+// SAVE TRANSACTION
+// ===============================
 const saveTransaction = async (transactionData) => {
-    const newRecord = new Transaction(transactionData);
-    return await newRecord.save();
+  const newRecord = new Transaction(transactionData);
+  return await newRecord.save();
 };
 
-// 2. Ambil semua transaksi milik user tertentu
-const getTransactionsByUserId = async (userId) => {
-    // sort({ tanggal: -1 }) artinya diurutkan dari tanggal terbaru ke terlama
-    return await Transaction.find({ userId }).sort({ tanggal: -1 });
+// ===============================
+// GET TRANSACTION LIST
+// ===============================
+const getTransactionsByUserId = async (userId, startDate, endDate) => {
+  const query = { userId };
+
+  if (startDate && endDate) {
+    query.tanggal = {
+      $gte: startDate,
+      $lt: endDate,
+    };
+  } else if (startDate) {
+    query.tanggal = {
+      $gte: startDate,
+    };
+  }
+
+  return await Transaction.find(query).sort({ tanggal: -1 });
 };
 
-// 3. Fungsi Delete Transaksi (Kembali dimasukkan karena sempat hilang)
+// ===============================
+// TOTAL PEMASUKAN TAMBAHAN
+// (Tidak termasuk gaji onboarding)
+// ===============================
+const getAdditionalIncomeSummary = async (userId, startDate, endDate) => {
+  const match = {
+    userId: new mongoose.Types.ObjectId(userId),
+    tipeTransaksi: "Pemasukan",
+  };
+
+  if (startDate && endDate) {
+    match.tanggal = {
+      $gte: startDate,
+      $lt: endDate,
+    };
+  } else if (startDate) {
+    match.tanggal = {
+      $gte: startDate,
+    };
+  }
+
+  const result = await Transaction.aggregate([
+    {
+      $match: match,
+    },
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: "$nominal",
+        },
+      },
+    },
+  ]);
+
+  return result.length ? result[0].total : 0;
+};
+
+// ===============================
+// TOTAL PENGELUARAN
+// ===============================
+const getExpenseSummary = async (userId, startDate, endDate) => {
+  const match = {
+    userId: new mongoose.Types.ObjectId(userId),
+    tipeTransaksi: "Pengeluaran",
+  };
+
+  if (startDate && endDate) {
+    match.tanggal = {
+      $gte: startDate,
+      $lt: endDate,
+    };
+  } else if (startDate) {
+    match.tanggal = {
+      $gte: startDate,
+    };
+  }
+
+  const result = await Transaction.aggregate([
+    {
+      $match: match,
+    },
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: "$nominal",
+        },
+      },
+    },
+  ]);
+
+  return result.length ? result[0].total : 0;
+};
+
+// ===============================
+// PIE CHART
+// TOTAL PENGELUARAN PER KATEGORI
+// ===============================
+const getExpenseCategorySummary = async (
+  userId,
+  startDate,
+  endDate
+) => {
+  const match = {
+    userId: new mongoose.Types.ObjectId(userId),
+    tipeTransaksi: "Pengeluaran",
+  };
+
+  if (startDate && endDate) {
+    match.tanggal = {
+      $gte: startDate,
+      $lt: endDate,
+    };
+  } else if (startDate) {
+    match.tanggal = {
+      $gte: startDate,
+    };
+  }
+
+  return await Transaction.aggregate([
+    {
+      $match: match,
+    },
+    {
+      $group: {
+        _id: "$kategori",
+        total: {
+          $sum: "$nominal",
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        kategori: "$_id",
+        total: 1,
+      },
+    },
+    {
+      $sort: {
+        total: -1,
+      },
+    },
+  ]);
+};
+
+// ===============================
+// DELETE TRANSACTION
+// ===============================
 const deleteTransactionByIdAndUser = async (transactionId, userId) => {
-    return await Transaction.findOneAndDelete({ _id: transactionId, userId });
+  return await Transaction.findOneAndDelete({
+    _id: transactionId,
+    userId,
+  });
 };
 
-// 4. Fungsi Update Transaksi (Cukup Tulis 1 Kali Saja)
-const updateTransactionByIdAndUser = async (transactionId, userId, updateData) => {
-    // findOneAndUpdate akan mencari data, mengubahnya, dan { new: true } mengembalikan data versi terbaru
-    return await Transaction.findOneAndUpdate(
-        { _id: transactionId, userId },
-        { $set: updateData },
-        { new: true, runValidators: true }
-    );
-};
-
-// Export semua fungsi agar bisa dipakai di Service
 export default {
-    saveTransaction,
-    getTransactionsByUserId,
-    deleteTransactionByIdAndUser,
-    updateTransactionByIdAndUser
+  saveTransaction,
+  getTransactionsByUserId,
+  getAdditionalIncomeSummary,
+  getExpenseSummary,
+  getExpenseCategorySummary,
+  deleteTransactionByIdAndUser,
 };
