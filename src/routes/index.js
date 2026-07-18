@@ -4,10 +4,6 @@ import financialRoute from './financialRoute.js'
 import transactionRoute from './transactionRoute.js'
 import roboAdvisorRoute from './roboAdvisorRoute.js'
 
-//Import rute onbordingController
-import financialRoute from './financialRoute.js'
-import transactionRoute from './transactionRoute.js'
-
 const mainRoute = Router()
 mainRoute.use('/auth', authRouter)
 
