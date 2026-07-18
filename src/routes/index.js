@@ -15,6 +15,6 @@ mainRoute.use('/onboarding', financialRoute)
 
 mainRoute.use('/transaction', transactionRoute)
 
-mainRoute.use{'/robo-advisor', roboAdvisorRoute}
+mainRoute.use('/robo-advisor', roboAdvisorRoute)
 
 export default mainRoute
